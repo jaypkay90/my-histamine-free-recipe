@@ -4,9 +4,11 @@ from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.response import Response
 from foods.models import Food, FoodName, HistamineInfo
+from api.serializers import FoodSerializer
 from rest_framework.decorators import api_view
+from rest_framework.generics import ListAPIView
 
-@api_view(['GET'])
+'''@api_view(['GET'])
 def food_histamine_info(request):
     query = request.GET.get('query', '').strip()
     if not query:
@@ -33,4 +35,13 @@ def food_histamine_info(request):
         'notes': histamine.notes,
         'information_source': histamine.information_source.name if histamine.information_source else None
     })
+'''
+class FoodListView(ListAPIView):
+    queryset = Food.objects.all()
+    serializer_class = FoodSerializer
+
+class FoodDetailView(generics.RetrieveAPIView):
+    queryset = Food.objects.all()
+    serializer_class = FoodSerializer
+    lookup_field = 'pk'
 

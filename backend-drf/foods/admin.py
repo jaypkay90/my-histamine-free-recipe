@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 from django.contrib import admin
-from .models import Food, FoodName, HistamineInfo, InformationSource
+from .models import Food, FoodName, HistamineInfo, InformationSource, FoodType, FoodTypeRelation
 
 # Inline für FoodName und HistamineInfo, damit alles auf einer Food-Seite bearbeitet werden kann
 # Die Felder von FoodName sollen innerhalb des AdminPanels in einem anderen Formular angezeigt werden
@@ -18,6 +18,13 @@ class HistamineInfoInline(admin.StackedInline):
     can_delete = False # Löschen von einem Eintrag im Fenster Food nicht möglich
     verbose_name_plural = 'Histamine Info'
 
+# FoodTypeRelation ist die Relationstabelle von Food und FoodType -> wir wollen diese Tabelle in Food als Inline anzeigen
+# damit wir die entsprechenden FoodType(s) dort direkt auswählen können
+# Wenn man will, dass der Admin für einen Food mehrere FoodTypes auswählen kann, muss man die Relationstabelle als Inline anzeigen, NICHT DIE FOODTYPE TABELLE
+class FoodTypeRelationInline(admin.TabularInline):
+    model = FoodTypeRelation
+    extra = 1
+
 @admin.register(Food)
 class FoodAdmin(admin.ModelAdmin): # Parent-Formular
     # Spalten, die in der Listenansicht aller Foods angezeigt werden
@@ -27,7 +34,7 @@ class FoodAdmin(admin.ModelAdmin): # Parent-Formular
 
     # Detailansicht eines Foods: Zeige diese beiden Inlines (Child-Formulare) im Admin-Panel auf der Food-Seite an
     # In der Tabelle food selbst sind keine Felder drin (außer id) -> deswegen müssen wir hier sonst nichts anzeigen
-    inlines = [FoodNameInline, HistamineInfoInline]
+    inlines = [FoodNameInline, HistamineInfoInline, FoodTypeRelationInline]
 
     # Diese Methode sorgt dafür, dass in der Listenansicht der zum Food zugehörige Primary-Name angezeigt wird
     def primary_name(self, obj):
@@ -55,5 +62,11 @@ class HistamineInfoAdmin(admin.ModelAdmin):
 
 @admin.register(InformationSource)
 class InformationSourceAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
+
+# Adminseite zum Eintragen neuer FoodTypes
+@admin.register(FoodType)
+class FoodTypeAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
